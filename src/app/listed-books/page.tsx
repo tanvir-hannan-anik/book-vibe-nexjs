@@ -6,7 +6,15 @@ import { IBook } from "@/types/book-type";
 import React, { useContext } from "react";
 
 const ListedBookDetails = () => {
-    const { readBooks, wishlist } = useContext(BookContext);
+    const context = useContext(BookContext);
+
+    if (!context) {
+        throw new Error(
+            "ListedBookDetails must be used inside BooksProvider"
+        );
+    }
+
+    const { readBooks, wishlist } = context;
 
     return (
         <section className="container mx-auto px-4 py-8">
@@ -17,7 +25,6 @@ const ListedBookDetails = () => {
                     Books
                 </h2>
             </div>
-
 
             {/* ================= SORT BUTTON ================= */}
             <div className="flex justify-center mb-7">
@@ -46,7 +53,7 @@ const ListedBookDetails = () => {
             {/* ================= TABS ================= */}
             <div className="tabs tabs-lift">
 
-                {/* READ BOOKS TAB */}
+                {/* ================= READ BOOKS TAB ================= */}
                 <input
                     type="radio"
                     name="book_tabs"
@@ -80,8 +87,7 @@ const ListedBookDetails = () => {
 
                 </div>
 
-
-                {/* WISHLIST TAB */}
+                {/* ================= WISHLIST TAB ================= */}
                 <input
                     type="radio"
                     name="book_tabs"

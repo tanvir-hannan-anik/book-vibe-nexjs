@@ -1,7 +1,9 @@
-"use client"
-import { BookContext } from '@/context/BooksContext';
-import { IBook } from '@/types/book-type';
-import React, { useContext } from 'react';
+"use client";
+
+import { BookContext } from "@/context/BooksContext";
+import { IBook } from "@/types/book-type";
+import React, { useContext } from "react";
+
 import {
     BarChart,
     Bar,
@@ -11,79 +13,156 @@ import {
     LabelList,
     Label,
     Tooltip,
-} from 'recharts';
+} from "recharts";
 
-const colors = [
-    '#0088FE',
-    '#00C49F',
-    '#FFBB28',
-    '#FF8042',
-    'red',
-    'pink',
-    'black',
+/* ================= COLORS ================= */
+
+const colors: string[] = [
+    "#0088FE",
+    "#00C49F",
+    "#FFBB28",
+    "#FF8042",
+    "red",
+    "pink",
+    "black",
 ];
 
+/* ================= GET PATH TYPE ================= */
 
-const getPath = (x, y, width, height) => {
-    return `M${x},${y + height}
-        C${x + width / 3},${y + height}
-        ${x + width / 2},${y + height / 3}
-        ${x + width / 2},${y}
-        C${x + width / 2},${y + height / 3}
-        ${x + (2 * width) / 3},${y + height}
-        ${x + width},${y + height}
+interface GetPathProps {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+/* ================= GET PATH ================= */
+
+const getPath = ({
+    x,
+    y,
+    width,
+    height,
+}: GetPathProps): string => {
+    return `M${x},${y + height} 
+        C${x + width / 3},${y + height} 
+        ${x + width / 2},${y + height / 3} 
+        ${x + width / 2},${y} 
+        C${x + width / 2},${y + height / 3} 
+        ${x + (2 * width) / 3},${y + height} 
+        ${x + width},${y + height} 
         Z`;
 };
 
-const TriangleBar = (props) => {
-    const { x, y, width, height, index } = props;
+/* ================= TRIANGLE BAR TYPE ================= */
+
+interface TriangleBarProps {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    index?: number;
+    isActive?: boolean;
+}
+
+/* ================= TRIANGLE BAR ================= */
+
+const TriangleBar = ({
+    x = 0,
+    y = 0,
+    width = 0,
+    height = 0,
+    index = 0,
+    isActive = false,
+}: TriangleBarProps) => {
 
     const color = colors[index % colors.length];
 
     return (
         <path
-            strokeWidth={props.isActive ? 5 : 0}
-            d={getPath(
-                Number(x),
-                Number(y),
-                Number(width),
-                Number(height)
-            )}
+            strokeWidth={isActive ? 5 : 0}
+            d={getPath({
+                x: Number(x),
+                y: Number(y),
+                width: Number(width),
+                height: Number(height),
+            })}
             stroke={color}
             fill={color}
             style={{
-                transition: 'stroke-width 0.3s ease-out',
+                transition: "stroke-width 0.3s ease-out",
             }}
         />
     );
 };
 
-const CustomColorLabel = (props) => {
-    const fill = colors[(props.index ?? 0) % colors.length];
+/* ================= LABEL TYPE ================= */
 
-    return <Label {...props} fill={fill} />;
+type CustomColorLabelProps = React.ComponentProps<typeof Label> & {
+    index?: number;
 };
 
-const ReadBookChart = () => {
-    const { readBooks } = useContext(BookContext)
+/* ================= CUSTOM LABEL ================= */
 
-    const data = readBooks.map((book: IBook, index: number) => {
-        return {
-            name: book.bookName,
-            uv: book.totalPages,
-            pv: index + 1,
-            amt: index + 1,
+const CustomColorLabel = ({
+    index = 0,
+    ...props
+}: CustomColorLabelProps) => {
 
-        }
-    })
+    const fill = colors[index % colors.length];
 
     return (
-        <div className='flex justify-center items-center my-50'>
+        <Label
+            {...props}
+            fill={fill}
+        />
+    );
+};
+
+/* ================= CHART DATA TYPE ================= */
+
+interface ChartData {
+    name: string;
+    uv: number;
+    pv: number;
+    amt: number;
+}
+
+/* ================= COMPONENT ================= */
+
+const ReadBookChart = () => {
+
+    const context = useContext(BookContext);
+
+    if (!context) {
+        throw new Error(
+            "ReadBookChart must be used inside BooksProvider"
+        );
+    }
+
+    const { readBooks } = context;
+
+    /* ================= DATA ================= */
+
+    const data: ChartData[] = readBooks.map(
+        (book: IBook, index: number) => {
+            return {
+                name: book.bookName,
+                uv: book.totalPages,
+                pv: index + 1,
+                amt: index + 1,
+            };
+        }
+    );
+
+    return (
+        <div className="flex justify-center items-center my-50">
+
             <BarChart
                 style={{
-                    width: '100%',
-                    maxWidth: '700px',
-                    maxHeight: '70vh',
+                    width: "100%",
+                    maxWidth: "700px",
+                    maxHeight: "70vh",
                     aspectRatio: 1.618,
                 }}
                 responsive
@@ -95,9 +174,14 @@ const ReadBookChart = () => {
                     bottom: 5,
                 }}
             >
+
                 <CartesianGrid />
 
-                <Tooltip cursor={{ fillOpacity: 0.5 }} />
+                <Tooltip
+                    cursor={{
+                        fillOpacity: 0.5,
+                    }}
+                />
 
                 <XAxis dataKey="name" />
 
@@ -108,13 +192,16 @@ const ReadBookChart = () => {
                     shape={TriangleBar}
                     activeBar
                 >
+
                     <LabelList
                         content={CustomColorLabel}
                         position="top"
                     />
+
                 </Bar>
 
             </BarChart>
+
         </div>
     );
 };
