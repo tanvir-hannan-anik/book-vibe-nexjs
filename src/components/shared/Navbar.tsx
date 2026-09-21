@@ -7,7 +7,8 @@ const Navbar = () => {
     const links = <>
         <li><Link href='/'>Home</Link></li>
         <li><Link href='/books'>Books</Link></li>
-        <li><Link href='/listed-books'>Listed Book</Link></li>
+        <li><Link href='/listed-books'>Listed Books</Link></li>
+        <li><Link href='/read-books'>Read Books</Link></li>
     </>
     return (
         <nav className='bg-base-100 shadow-sm'>
